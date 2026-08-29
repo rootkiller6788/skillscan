@@ -1,6 +1,6 @@
 {
   "name": "skillscan",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "npm audit for AI Agent Skills — 扫描 Agent Skill 是否危险",
   "type": "module",
   "bin": {

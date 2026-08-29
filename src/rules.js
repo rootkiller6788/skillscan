@@ -35,8 +35,8 @@ export const RULES = [
     name: '危险删除',
     category: 'destructive',
     severity: 'high',
-    description: 'rm -rf / rm -fr 递归强制删除',
-    pattern: /\brm\s+-[a-zA-Z]*[rR][a-zA-Z]*[fF]\b|\brm\s+-[a-zA-Z]*[fF][a-zA-Z]*[rR]\b/,
+    description: 'rm -rf / rm -fr / rm -r -f 递归强制删除（含分开旗标写法）',
+    pattern: /\brm\s+(?:-[a-zA-Z]*[rR][a-zA-Z]*[fF]|-[a-zA-Z]*[fF][a-zA-Z]*[rR]|-[rR]\s+-[fF]|-[fF]\s+-[rR])\b/,
   },
   {
     id: 'sensitive-ssh',
@@ -79,6 +79,14 @@ export const RULES = [
     pattern: /\/etc\/shadow/,
   },
   {
+    id: 'sensitive-kube',
+    name: '读取 Kubernetes 凭证',
+    category: 'data',
+    severity: 'high',
+    description: '读取 ~/.kube/config 或 kubeconfig 集群凭证',
+    pattern: /~\/?\.kube\b|\.kube[\\\/]|kubeconfig/,
+  },
+  {
     id: 'install-unknown',
     name: '安装第三方包',
     category: 'supply-chain',
@@ -103,6 +111,22 @@ export const RULES = [
     pattern: /\/dev\/tcp\/|nc\s+-e|socat/i,
   },
   {
+    id: 'pwsh-web-exec',
+    name: 'PowerShell 下载执行',
+    category: 'execution',
+    severity: 'high',
+    description: 'Invoke-WebRequest/RestMethod 或 .DownloadString 下载后经管道交给 iex 执行',
+    pattern: /(Invoke-WebRequest|Invoke-RestMethod|\biwr\b|\birm\b|\.DownloadString)[^\n|]*\|\s*(iex|Invoke-Expression)\b/i,
+  },
+  {
+    id: 'download-exec',
+    name: '下载后执行',
+    category: 'execution',
+    severity: 'high',
+    description: 'curl/wget 下载脚本到本地文件后立即执行',
+    pattern: /\b(?:curl|wget)\b[^\n;&|]*-(?:o|O)\b[^\n;&|]*(?:&&|;)[^\n;&|]*\b(?:ba|z|k)?sh\b/,
+  },
+  {
     id: 'network-download',
     name: '网络下载/外联',
     category: 'network',
@@ -124,7 +148,7 @@ export const RULES = [
 
 // 敏感文件信号
 export const EXFIL_SENSITIVE =
-  /\.ssh\b|\.aws\b|\.env\b|\.pem\b|shadow|credentials|id_rsa|\.gnupg|\.netrc|\.pgpass|\.npmrc/i;
+  /\.ssh\b|\.aws\b|\.env\b|\.pem\b|shadow|credentials|id_rsa|\.gnupg|\.netrc|\.pgpass|\.npmrc|\.kube\b|kubeconfig/i;
 
 // 发送信号：把数据发往外部网络的写法
 export const EXFIL_SEND =
