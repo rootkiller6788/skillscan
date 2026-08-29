@@ -39,6 +39,23 @@ export function renderReport(result, { useColor = true } = {}) {
   lines.push(`扫描目标: ${targets.join(', ')}`);
   lines.push(`文件数: ${filesCount}   命中: ${scoreResult.findingsCount}   命中规则: ${scoreResult.ruleCount}`);
 
+  if (findings.length > 0) {
+    const byFile = new Map();
+    for (const f of findings) {
+      if (!byFile.has(f.file)) byFile.set(f.file, { high: 0, medium: 0, low: 0 });
+      byFile.get(f.file)[f.severity] = (byFile.get(f.file)[f.severity] ?? 0) + 1;
+    }
+    lines.push('');
+    lines.push(paint('bold', '按文件分布:'));
+    for (const [file, c] of byFile) {
+      const parts = [];
+      if (c.high) parts.push(paint('red', `${c.high} high`));
+      if (c.medium) parts.push(paint('yellow', `${c.medium} medium`));
+      if (c.low) parts.push(paint('dim', `${c.low} low`));
+      lines.push(`  ${file}  →  ${parts.join(', ')}`);
+    }
+  }
+
   if (findings.length === 0) {
     lines.push('');
     lines.push(paint('green', '✓ 未发现危险模式'));

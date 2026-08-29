@@ -15,7 +15,7 @@ npx skillscan ./my-skill
 ```
 
 ```text
-SkillScan v0.1.0 — npm audit for AI Agent Skills
+SkillScan v0.2.0 — npm audit for AI Agent Skills
 ────────────────────────────────────────────────────────
 扫描目标: ./my-skill
 文件数: 3   命中: 9   命中规则: 7
@@ -81,9 +81,11 @@ skillscan ./my-skill --threshold 80     # CI 门禁：80 分以下才放行
 |------|----------|--------|
 | 管道执行 | `curl \| bash`、`wget \| sh`、多级管道接 shell | high |
 | 子 shell 执行 | `sh -c "$(curl …)"` 远程拉取执行 | high |
+| PowerShell 下载执行 | `Invoke-WebRequest … \| iex`、`iwr … \| Invoke-Expression` | high |
+| 下载后执行 | `curl -o x.sh … && bash x.sh` | high |
 | 提权 | `sudo` | medium |
-| 危险删除 | `rm -rf` / `rm -fr` 递归强删 | high |
-| 敏感读取 | `~/.ssh`、`id_rsa`、`*.pem`、`~/.aws`、`.env`、`.git-credentials`、`/etc/shadow` | high / medium |
+| 危险删除 | `rm -rf` / `rm -fr` / `rm -r -f` 递归强删 | high |
+| 敏感读取 | `~/.ssh`、`id_rsa`、`*.pem`、`~/.aws`、`.env`、`.git-credentials`、`/etc/shadow`、`~/.kube`、`kubeconfig` | high / medium |
 | 安装第三方包 | `npm/pip/gem/cargo install` | medium |
 | 混淆命令 | `base64 -d \| sh`、`powershell -enc`、`eval`、`IEX` | high |
 | 反弹 shell | `bash /dev/tcp`、`nc -e` | high |
