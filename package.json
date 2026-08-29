@@ -1,0 +1,38 @@
+{
+  "name": "skillscan",
+  "version": "0.1.0",
+  "description": "npm audit for AI Agent Skills — 扫描 Agent Skill 是否危险",
+  "type": "module",
+  "bin": {
+    "skillscan": "bin/skillscan.js"
+  },
+  "main": "src/cli.js",
+  "exports": {
+    ".": "./src/cli.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test",
+    "scan:safe": "node bin/skillscan.js test/fixtures/safe",
+    "scan:suspicious": "node bin/skillscan.js test/fixtures/suspicious",
+    "scan:malicious": "node bin/skillscan.js test/fixtures/malicious"
+  },
+  "keywords": [
+    "skill",
+    "agent",
+    "ai",
+    "security",
+    "audit",
+    "cli",
+    "llm",
+    "skillscan"
+  ],
+  "license": "MIT",
+  "files": [
+    "bin",
+    "src",
+    "README.md"
+  ]
+}
